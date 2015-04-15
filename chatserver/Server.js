@@ -1,12 +1,15 @@
 'use strict';
 
-const debug  = require('debug')('chat:server');
-const co     = require('co');
-const sio    = require('socket.io');
+const assert  = require('better-assert');
+const debug   = require('debug')('chat:server');
+const co      = require('co');
+const sio     = require('socket.io');
+const request = require('co-request');
 
 import { EventEmitter } from 'events';
 
-import * as Lib from './lib';
+import config from '../config';
+import * as lib from './lib';
 
 import Client from './Client';
 import User   from './User';
@@ -46,36 +49,65 @@ export default class Server extends EventEmitter {
 
   *onAuth(socket, authInfo) {
     debug('Auth attempt', authInfo);
-    let accessToken = authInfo.access_token;
 
-    if (!accessToken)
-      throw 'INVALID_ACCESS_TOKEN';
+    if (!authInfo.hasOwnProperty('hashed_access_token'))
+      throw 'ACCESS_TOKEN_NOT_PROVIDED';
+    let hashedAccessToken = authInfo.hashed_access_token;
 
-    // TODO: Fetch userinfo from vault.
-    let userid   = Math.floor(Math.random()*10000);
-    let username = 'User' + userid;
+    // Test if it's a well-formed access token.
+    let notValid = lib.isInvalidAccessToken(hashedAccessToken);
+    if (notValid) throw notValid;
 
+    // Fetch userinfo from vault.
+    let userInfo;
     try {
-      let user      = this.users[userid];
-      let freshUser = !user;
-      if (freshUser) {
-        user = new User(userid, username);
-        this.users[userid] = user;
-      }
+      let userInfoUrl =
+        config.chatapp.API_URL + '/hashed-token-users/' +
+        hashedAccessToken + '?app_secret=' +
+        config.chatapp.APP_SECRET;
+      let result = yield request(userInfoUrl);
 
-      // TODO: Support leavinig/joining channels. Get rid
-      // of socket.io rooms?
-      socket.join('joined');
+      if (result.statusCode !== 200)
+        throw 'ERROR_FETCHING_USERINFO';
 
-      let client = new Client(user, socket);
-      client.on('disconnect', this.onDisconnect.bind(this));
-      client.on('message', this.onMessage.bind(this));
-      this.clients.add(client);
-      this.emit('new client', client, freshUser);
-      return {username: username};
+      userInfo = JSON.parse(result.body);
+
+      assert(userInfo.hasOwnProperty('id'));
+      assert(userInfo.hasOwnProperty('uname'));
+      assert(typeof userInfo.id === 'number');
+      assert(typeof userInfo.uname === 'string');
     } catch(ex) {
-      console.log(ex.stack);
+      if (ex instanceof Error)
+        console.error(ex.stack);
+      else
+        console.error(ex);
+
+      // Send some generic error report to the user.
+      throw 'ERROR_AUTHENTICATING_USER';
     }
+
+    let userid   = userInfo.id;
+    let username = userInfo.uname;
+
+    let user      = this.users[userid];
+    let freshUser = !user;
+    if (freshUser) {
+      user = new User(userid, username);
+      this.users[userid] = user;
+    }
+
+    // TODO: Support leavinig/joining channels. Get rid
+    // of socket.io rooms?
+    socket.join('joined');
+
+    let client = new Client(user, socket);
+    client.on('disconnect', this.onDisconnect.bind(this));
+    client.on('message', this.onMessage.bind(this));
+    this.clients.add(client);
+    this.emit('new client', client, freshUser);
+
+    // Finally send the username back to the client.
+    return {username: username};
   }
 
   onDisconnect(client) {

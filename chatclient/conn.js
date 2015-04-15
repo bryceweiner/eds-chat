@@ -5,18 +5,23 @@ var Action       = require('./constants/Action');
 var Vault        = require('./constants/Vault');
 var Dispatcher   = require('./dispatcher/Dispatcher');
 
-function connect(accessToken) {
+function connect(hashedAccessToken) {
+  console.log('[conn] Connecting to', Vault.CHAT_HOST);
   var socket = io(Vault.CHAT_HOST);
 
   socket.on('connect', function(data) {
-    var authInfo = { access_token: accessToken };
+    var authInfo =
+      { hashed_access_token: hashedAccessToken };
 
-    console.log('[auth] ' + JSON.stringify(authInfo));
+    console.log('[conn] Connection established');
+    console.log('[auth] Authenticating ' +
+                JSON.stringify(authInfo));
+
     // TODO: get rid of the callback and get the user info
     // over a seperate event
     socket.emit('auth', authInfo, function(err, info) {
       if (err)
-        return console.error('Error when joining the game...', err);
+        return console.error('Error when joining the chat', err);
 
       console.log('[join] ' + JSON.stringify(info));
       ServerAction.receiveUserInfo(info);

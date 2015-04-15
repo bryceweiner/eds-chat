@@ -1,6 +1,7 @@
 'use strict';
 
-var React   = require('react');
+var React  = require('react');
+var crypto = require('crypto');
 
 var ServerAction = require('./actions/ServerAction');
 var ChatClient   = require('./components/ChatClient.react');
@@ -28,17 +29,24 @@ window.React = React;
     fragmentParams[d(e[1])] = d(e[2]);
 
   //window.location.hash = '';
-  console.log('fragmentParams:', fragmentParams);
+  console.log('[auth] fragmentParams:', fragmentParams);
 
   // The access_token will be undefined or a string.
   var accessToken = fragmentParams.access_token;
+  var hashedAccessToken =
+    accessToken
+      ? crypto
+          .createHash('sha256')
+          .update(accessToken)
+          .digest('hex')
+        : null;
+  var user = { hashedAccessToken: hashedAccessToken };
 
-  var user = {};
-  if (accessToken)
-    user.accessToken = accessToken;
+  console.log('[auth] Access token:', accessToken);
+  console.log('[auth] Hashed access token:', hashedAccessToken);
 
   UserStore.init(user);
-  connect(accessToken);
+  connect(hashedAccessToken);
 })();
 
 

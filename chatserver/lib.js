@@ -9,3 +9,11 @@ export function isInvalidUsername(input) {
   if (input === '__proto__')          return 'INVALID_CHARS';
   return false;
 }
+
+export function isInvalidAccessToken(input) {
+  if (typeof input !== 'string')
+    return 'ACCESS_TOKEN_IS_NOT_STRING';
+  if (!/^[a-z0-9]{64}$/i.test(input))
+    return 'ACCESS_TOKEN_IS_NOT_SHA256';
+  return false;
+}
