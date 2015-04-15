@@ -24,6 +24,12 @@ module.exports = {
       type: Action.RECEIVE_MESSAGE,
       rawMessage: rawMessage
     });
+  },
+
+  disconnected: function() {
+    Dispatcher.dispatch({
+      type: Action.DISCONNECTED
+    });
   }
 
 };

@@ -12,5 +12,6 @@ module.exports =
       // Server actions
       RECEIVE_USERINFO: null,
       RECEIVE_MESSAGE: null,
-      RECEIVE_MESSAGES: null
+      RECEIVE_MESSAGES: null,
+      DISCONNECTED: null
     });

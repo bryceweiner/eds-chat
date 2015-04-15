@@ -27,13 +27,22 @@ var UserSection = React.createClass({
   render: function() {
     var user = this.state.user;
     var heading =
-      user.tokenHash
-        ? (<h3 className="user-name">Logged in as {user.name}</h3>)
-        : (<h3 className="user-name">
-             <a href={Vault.AUTHORIZE_URL}>
-               Log into MoneyPot
-             </a>
-           </h3>);
+      // Fully logged in
+      user.loggedIn ?
+        (<h3 className="user-name">
+           Logged in as {user.name}
+         </h3>) :
+      // Not logged in yet, but we have a token hash.
+      user.tokenHash ?
+        (<h3 className="user-name">
+           Logging in ...
+         </h3>) :
+      // Not logged in and no token hash.
+        (<h3 className="user-name">
+           <a href={Vault.AUTHORIZE_URL}>
+             Log into MoneyPot
+           </a>
+         </h3>);
     return (
       <div className="user-section">
         {heading}

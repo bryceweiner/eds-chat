@@ -26,6 +26,11 @@ function connect(tokenHash) {
     });
   });
 
+  socket.on('disconnect', function() {
+    console.log('[conn] disconnected');
+    ServerAction.disconnected();
+  });
+
   socket.on('message', function(message) {
     console.log('[message]', message);
     ServerAction.receiveMessage(message);

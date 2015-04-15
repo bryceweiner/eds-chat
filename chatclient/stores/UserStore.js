@@ -9,9 +9,10 @@ var Action     = require('../constants/Action');
 var CHANGE_EVENT = 'change';
 
 var _user =
-      { name: 'unknown',
-        tokenHash: null
-      };
+  { loggedIn: false,
+    name: null,
+    tokenHash: null
+  };
 
 var CHANGE_EVENT = 'change';
 var UserStore = assign({}, EventEmitter.prototype, {
@@ -43,6 +44,12 @@ UserStore.dispatchToken = Dispatcher.register(function(action) {
   switch(action.type) {
   case Action.RECEIVE_USERINFO:
     _user.name = action.username;
+    _user.loggedIn = true;
+    UserStore.emitChange();
+    break;
+
+  case Action.DISCONNECTED:
+    _user.loggedIn = false;
     UserStore.emitChange();
     break;
   }
