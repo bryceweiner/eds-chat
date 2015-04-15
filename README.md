@@ -1,0 +1,2 @@
+MoneyPot Chat Server
+====================

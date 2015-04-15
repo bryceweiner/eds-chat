@@ -1,0 +1,108 @@
+
+.chat {
+  font-family: 'Dejavu Sans', Arial, Helvetica, sans-serif;
+  margin: 20px auto;
+  overflow: hidden;
+}
+
+.channel-user-section {
+  float: left;
+  width: 27.5%;
+}
+
+.message-section {
+  float: right;
+  width: 70%;
+}
+
+.channel-list {
+  height: 485px;
+}
+
+.message-list {
+  height: 400px;
+}
+
+.message-list, .channel-list {
+  border: 1px solid #ccf;
+  font-size: 16px;
+  margin: 0;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.user-name, .message-list-heading {
+  height: 40px;
+  margin: 0;
+}
+
+.channel-list-item {
+  list-style: none;
+  padding: 12px 14px 28px 14px;}
+}
+
+.message-list-item {
+  list-style: none;
+}
+
+.channel-list-item {
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.channel-list:hover .channel-list-item:hover {
+  background-color: #f8f8ff;
+}
+
+.channel-list:hover .channel-list-item {
+  background-color: #fff;
+}
+
+.channel-list-item.active,
+.channel-list:hover .channel-list-item.active,
+.channel-list:hover .channel-list-item.active:hover {
+  background-color: #efefff;
+  cursor: default;
+}
+
+.channel-name {
+  color: #66c;
+  float: left;
+  font-size: 15px;
+  margin: 0;
+}
+
+.channel-unread {
+  color: #aad;
+  float: right;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.message-time {
+  color: #aad;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.message-author-name {
+  color: #66c;
+  font-size: 14px;
+  padding: 0 5px 0;
+  font-weight: 600;
+}
+
+.message-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.message-composer {
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 13px;
+  height: 5em;
+  width: 100%;
+  margin: 20px 0 0;
+  padding: 10px;
+}
