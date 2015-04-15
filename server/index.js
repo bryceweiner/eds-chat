@@ -1,7 +1,7 @@
 'use strict';
-
 const debug     = require('debug')('chat:app');
 
+import compress   from 'koa-compress';
 import koa        from 'koa';
 import path       from 'path';
 import config     from '../config';
@@ -10,6 +10,9 @@ export const app = koa();
 
 // What does the 'dev' do here?
 app.use(require('koa-logger')('dev'));
+
+app.use(compress());
+
 // Serve static files.
 app.use(require('koa-static')(path.join(__dirname, '../public')));
 
