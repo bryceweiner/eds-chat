@@ -1,7 +1,7 @@
 'use strict';
 
 var React  = require('react');
-var crypto = require('crypto');
+var sha256 = require('./lib/sha256.js');
 
 var ServerAction = require('./actions/ServerAction');
 var ChatClient   = require('./components/ChatClient.react');
@@ -35,11 +35,8 @@ window.React = React;
   var accessToken = fragmentParams.access_token;
   var tokenHash =
     accessToken
-      ? crypto
-          .createHash('sha256')
-          .update(accessToken)
-          .digest('hex')
-        : null;
+      ? sha256(accessToken)
+      : null;
   var user = { tokenHash: tokenHash };
 
   console.log('[auth] Access token:', accessToken);
