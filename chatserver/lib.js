@@ -10,10 +10,10 @@ export function isInvalidUsername(input) {
   return false;
 }
 
-export function isInvalidAccessToken(input) {
+export function isInvalidTokenHash(input) {
   if (typeof input !== 'string')
-    return 'ACCESS_TOKEN_IS_NOT_STRING';
+    return 'TOKEN_HASH_IS_NOT_STRING';
   if (!/^[a-z0-9]{64}$/i.test(input))
-    return 'ACCESS_TOKEN_IS_NOT_SHA256';
+    return 'TOKEN_HASH_IS_NOT_SHA256';
   return false;
 }

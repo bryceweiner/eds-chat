@@ -10,7 +10,7 @@ var CHANGE_EVENT = 'change';
 
 var _user =
       { name: 'unknown',
-        accessToken: null
+        tokenHash: null
       };
 
 var CHANGE_EVENT = 'change';

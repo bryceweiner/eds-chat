@@ -33,20 +33,20 @@ window.React = React;
 
   // The access_token will be undefined or a string.
   var accessToken = fragmentParams.access_token;
-  var hashedAccessToken =
+  var tokenHash =
     accessToken
       ? crypto
           .createHash('sha256')
           .update(accessToken)
           .digest('hex')
         : null;
-  var user = { hashedAccessToken: hashedAccessToken };
+  var user = { tokenHash: tokenHash };
 
   console.log('[auth] Access token:', accessToken);
-  console.log('[auth] Hashed access token:', hashedAccessToken);
+  console.log('[auth] Token hash:', tokenHash);
 
   UserStore.init(user);
-  connect(hashedAccessToken);
+  connect(tokenHash);
 })();
 
 

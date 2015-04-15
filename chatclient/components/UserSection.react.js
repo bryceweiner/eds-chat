@@ -27,7 +27,7 @@ var UserSection = React.createClass({
   render: function() {
     var user = this.state.user;
     var heading =
-      user.hashedAccessToken
+      user.tokenHash
         ? (<h3 className="user-name">Logged in as {user.name}</h3>)
         : (<h3 className="user-name">
              <a href={Vault.AUTHORIZE_URL}>

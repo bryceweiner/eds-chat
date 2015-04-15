@@ -38,24 +38,20 @@ export default class Server extends EventEmitter {
     }, 30000);
 
     // Auth handler
-    socket.once('auth', (authInfo, k) => {
+    socket.once('auth', (tokenHash, k) => {
       clearTimeout(timeoutTimer);
-      co(this.onAuth.call(this, socket, authInfo))
+      co(this.onAuth.call(this, socket, tokenHash))
         .nodeify(k);
     });
 
     this.emit('new connection', socket);
   }
 
-  *onAuth(socket, authInfo) {
-    debug('Auth attempt', authInfo);
-
-    if (!authInfo.hasOwnProperty('hashed_access_token'))
-      throw 'ACCESS_TOKEN_NOT_PROVIDED';
-    let hashedAccessToken = authInfo.hashed_access_token;
+  *onAuth(socket, tokenHash) {
+    debug('Auth attempt', tokenHash);
 
     // Test if it's a well-formed access token.
-    let notValid = lib.isInvalidAccessToken(hashedAccessToken);
+    let notValid = lib.isInvalidTokenHash(tokenHash);
     if (notValid) throw notValid;
 
     // Fetch userinfo from vault.
@@ -63,7 +59,7 @@ export default class Server extends EventEmitter {
     try {
       let userInfoUrl =
         config.chatapp.API_URL + '/hashed-token-users/' +
-        hashedAccessToken + '?app_secret=' +
+        tokenHash + '?app_secret=' +
         config.chatapp.APP_SECRET;
       let result = yield request(userInfoUrl);
 
