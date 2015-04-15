@@ -48,7 +48,7 @@ app.use(function *pageNotFound(next){
       this.body = {
         message: 'Page Not Found'
       };
-      break
+      break;
     default:
       this.type = 'text';
       this.body = 'Page Not Found';
@@ -65,7 +65,7 @@ app.on('error', function(err){
 // Start the server
 export const httpServer =
   app.listen(config.http.PORT, function () {
-    debug('Vault chat %s listening at port %d',
+    console.log('Vault chat %s listening at port %d',
           config.base.VERSION,
           config.http.PORT);
   });
