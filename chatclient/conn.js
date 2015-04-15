@@ -36,7 +36,7 @@ function connect(accessToken) {
       socket.emit(
         'message',
         { cid: action.currentChannelId,
-          text: action.text,
+          text: action.text
         });
       break;
 
