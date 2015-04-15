@@ -7,7 +7,7 @@
     "start": "node --harmony app.js",
     "start-dev": "env $(cat .env | xargs) nodemon --harmony app.js",
     "watchify": "watchify -d -v -o public/js/bundle.js chatclient/app.js",
-    "postinstall": "browserify -d -o public/js/bundle.js chatclient/app.js"
+    "postinstall": "browserify -o public/js/bundle.js chatclient/app.js"
   },
   "dependencies": {
     "babel": "^5.1.8",
