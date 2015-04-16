@@ -43,36 +43,14 @@ window.React = React;
   console.log('[auth] Token hash:', tokenHash);
 
   UserStore.init(user);
-  new Connection(tokenHash);
+  var conn = new Connection(tokenHash);
+  conn.on('connect', function() {
+    conn.joinChannel('dustdice', 'general');
+    conn.joinChannel('dustdice', 'support');
+    conn.joinChannel('bustabit', 'general');
+    conn.joinChannel('bustabit', 'support');
+  });
 })();
-
-
-
-var messages =
-  [ {
-      mid: '0',
-      cid: '#vault',
-      user: 'Edwin',
-      text: 'Wow vault',
-      time: Date.now() - 30000
-    },
-    {
-      mid: '1',
-      cid: '#bustabit',
-      user: 'Edwin',
-      text: 'Bust3d!',
-      time: Date.now() - 20000
-    },
-    {
-      mid: '2',
-      cid: '#dustdice',
-      user: 'Edwin',
-      text: 'very dusty',
-      time: Date.now() - 10000
-    }
-  ];
-
-ServerAction.receiveAll(messages);
 
 React.render(
     <ChatClient />,

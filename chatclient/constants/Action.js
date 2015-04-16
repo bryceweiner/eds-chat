@@ -11,6 +11,7 @@ module.exports =
 
       // Server actions
       RECEIVE_USERINFO: null,
+      RECEIVE_CHANNEL_INFO: null,
       RECEIVE_MESSAGE: null,
       RECEIVE_MESSAGES: null,
       DISCONNECTED: null

@@ -10,7 +10,7 @@ var ChannelListItem = React.createClass({
 
   propTypes: {
     channel:          ReactPropTypes.object,
-    currentChannelId: ReactPropTypes.string
+    currentChannelId: ReactPropTypes.number
   },
 
   render: function() {
@@ -20,10 +20,10 @@ var ChannelListItem = React.createClass({
       <li
         className={cx({
           'channel-list-item': true,
-          'active': channel.id === this.props.currentChannelId
+          'active': channel.cid === this.props.currentChannelId
         })}
         onClick={this._onClick}>
-        <h5 className="channel-name">{channel.id}</h5>
+        <h5 className="channel-name">{channel.name}</h5>
         <div className="channel-unread">
           ({unreadCount})
         </div>
@@ -32,7 +32,7 @@ var ChannelListItem = React.createClass({
   },
 
   _onClick: function() {
-    ClientAction.clickChannel(this.props.channel.id);
+    ClientAction.clickChannel(this.props.channel.cid);
   }
 
 });

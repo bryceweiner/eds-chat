@@ -26,6 +26,13 @@ module.exports = {
     });
   },
 
+  receiveChannelInfo: function(chanInfo) {
+    Dispatcher.dispatch({
+      type: Action.RECEIVE_CHANNEL_INFO,
+      channelInfo: chanInfo
+    });
+  },
+
   disconnected: function() {
     Dispatcher.dispatch({
       type: Action.DISCONNECTED

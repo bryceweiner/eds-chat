@@ -18,6 +18,14 @@ module.exports = {
       text: text,
       currentChannelId: currentChannelId
     });
+  },
+
+  joinChannel: function(appName, channelName) {
+    Dispatcher.dispatch({
+      type: Action.CREATE_MESSAGE,
+      text: text,
+      currentChannelId: currentChannelId
+    });
   }
 
 };

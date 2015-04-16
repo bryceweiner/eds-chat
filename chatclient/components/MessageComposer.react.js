@@ -8,7 +8,7 @@ var ENTER_KEY_CODE = 13;
 var MessageComposer = React.createClass({
 
   propTypes: {
-    channelId: React.PropTypes.string.isRequired
+    channelId: React.PropTypes.number
   },
 
   getInitialState: function() {

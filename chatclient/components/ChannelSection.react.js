@@ -8,7 +8,7 @@ var ChannelStore       = require('../stores/ChannelStore');
 
 function getStateFromStores() {
   return {
-    channels: ChannelStore.getAllChrono(),
+    channels: ChannelStore.getAllSorted(),
     currentChannelId: ChannelStore.getCurrentId()
   };
 }
@@ -31,7 +31,7 @@ var ChannelSection = React.createClass({
     var channelListItems = this.state.channels.map(function(channel) {
       return (
         <ChannelListItem
-          key={channel.id}
+          key={channel.cid}
           channel={channel}
           currentChannelId={this.state.currentChannelId}
         />

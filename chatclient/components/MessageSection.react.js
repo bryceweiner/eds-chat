@@ -42,13 +42,17 @@ var MessageSection = React.createClass({
 
   render: function() {
     var messageListItems = this.state.messages.map(getMessageListItem);
+    var channel          = this.state.channel;
+    var channelName      = channel ? channel.name : '';
+    var channelId        = channel ? channel.cid : null;
+
     return (
       <div className="message-section">
-        <h3 className="message-list-heading">{this.state.channel.id}</h3>
+        <h3 className="message-list-heading">{channelName}</h3>
         <ul className="message-list" ref="messageList">
           {messageListItems}
         </ul>
-        <div><MessageComposer channelId={this.state.channel.id}/></div>
+        <div><MessageComposer channelId={channelId}/></div>
       </div>
     );
   },

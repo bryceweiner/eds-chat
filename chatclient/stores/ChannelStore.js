@@ -15,26 +15,20 @@ var ChannelStore = assign({}, EventEmitter.prototype, {
 
   init: function(rawMessages) {
     rawMessages.forEach(function(rawMessage) {
-      var channelId = rawMessage.cid;
-      var channel   = _channels[channelId];
+      var cid = rawMessage.cid;
+      var channel   = _channels[cid];
 
-      if (!channel) {
-        channel = _channels[channelId] = {
-          id:          channelId,
-          name:        rawMessage.channelName || channelId,
-          lastRead:    -1,
-          unreadCount:  0
-        };
-      }
+      if (!channel)
+        return console.log('[msg] Dropping message', rawMessage);
 
-      if (channelId != _currentId)
+      if (cid != _currentId)
         channel.unreadCount++;
     }, this);
 
     if (!_currentId) {
-      var allChrono = this.getAllChrono();
-      var channel = allChrono[0];
-      _currentId = channel.id;
+      var allSorted = this.getAllSorted();
+      var channel = allSorted[0];
+      _currentId = channel.cid;
       channel.unreadCount = 0;
     }
   },
@@ -59,7 +53,7 @@ var ChannelStore = assign({}, EventEmitter.prototype, {
     return _channels;
   },
 
-  getAllChrono: function() {
+  getAllSorted: function() {
     var orderedChannels = [];
     for (var id in _channels) {
       var channel = _channels[id];
@@ -89,6 +83,29 @@ ChannelStore.dispatchToken =
       _currentId = action.channelId;
       _channels[_currentId].lastRead = Date.now();
       _channels[_currentId].unreadCount = 0;
+      ChannelStore.emitChange();
+      break;
+
+    case Action.RECEIVE_CHANNEL_INFO:
+      console.log('[STORE] Processing channel info');
+      var cinfo   = action.channelInfo;
+      var cid     = cinfo.cid;
+
+      var channel;
+      if (!_channels.hasOwnProperty(cid)) {
+        console.log('[STORE] Creating new channel');
+        channel = _channels[cid] =
+          {
+            cid: cid,
+            lastRead: -1,
+            unreadCount: 0
+          };
+      }
+      else
+        channel = _channels[cid];
+      channel.name = cinfo.aname + '#' + cinfo.cname;
+
+      ChannelStore.init(cinfo.history);
       ChannelStore.emitChange();
       break;
 
