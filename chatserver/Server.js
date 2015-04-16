@@ -31,11 +31,11 @@ export default class Server extends EventEmitter {
   onConnection(socket) {
     debug('Incoming connection');
 
-    // Give the client 30s to authenticate.
+    const timeout = 30000; // we give the client 30s to authenticate
     let timeoutTimer = setTimeout(function() {
-      socket.emit('err', '[auth] authentication timed out after 30s');
-      socket.close();
-    }, 30000);
+      socket.emit('err', '[auth] authentication timed out after ' + timeout + 'ms');
+      socket.disconnect();
+    }, timeout);
 
     // Auth handler
     socket.once('auth', (tokenHash, k) => {
