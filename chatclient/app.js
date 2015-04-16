@@ -7,7 +7,7 @@ var ServerAction = require('./actions/ServerAction');
 var ChatClient   = require('./components/ChatClient.react');
 var UserStore    = require('./stores/UserStore');
 
-var connect = require('./conn');
+var Connection   = require('./Connection');
 
 // export for http://fb.me/react-devtools
 window.React = React;
@@ -43,7 +43,7 @@ window.React = React;
   console.log('[auth] Token hash:', tokenHash);
 
   UserStore.init(user);
-  connect(tokenHash);
+  new Connection(tokenHash);
 })();
 
 
