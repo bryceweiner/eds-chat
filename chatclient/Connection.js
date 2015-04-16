@@ -45,7 +45,7 @@ Connection.prototype.onConnect = function(data) {
   var self = this;
   this.socket.emit('auth', this.tokenHash, function(err, info) {
     if (err)
-      return console.error('Error during authentication', err);
+      return console.error('Error during authentication', err.stack);
 
     console.log('[auth] ' + JSON.stringify(info));
     ServerAction.receiveUserInfo(info);

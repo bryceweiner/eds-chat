@@ -1,12 +1,12 @@
 'use strict';
 const debug     = require('debug')('chat:app');
 
-import compress   from 'koa-compress';
-import koa        from 'koa';
-import path       from 'path';
-import config     from '../config';
+const compress  = require('koa-compress');
+const koa       = require('koa');
+const path      = require('path');
+const config    = require('../config');
 
-export const app = koa();
+const app = module.exports.app = koa();
 
 // What does the 'dev' do here?
 app.use(require('koa-logger')('dev'));
@@ -66,7 +66,7 @@ app.on('error', function(err){
 });
 
 // Start the server
-export const httpServer =
+module.exports.httpServer =
   app.listen(config.http.PORT, function () {
     console.log('Vault chat %s listening at port %d',
           config.base.VERSION,

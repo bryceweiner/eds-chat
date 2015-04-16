@@ -1,60 +1,61 @@
 'use strict';
 
-const co        = require('co');
-const debug     = require('debug')('chat:client');
-const debugmsg  = require('debug')('chat:client:message');
-
-import { EventEmitter } from 'events';
-import * as Db from './Database';
+const co           = require('co');
+const debug        = require('debug')('chat:client');
+const debugmsg     = require('debug')('chat:message');
+const inherits     = require('util').inherits;
+const EventEmitter = require('events').EventEmitter;
+const Db           = require('./Database');
 
 /*
  * Represents a connection from an authenticated user.
  */
-export default class Client extends EventEmitter {
-  constructor(user, socket) {
-    super();
+module.exports = Client;
+function Client(user, socket) {
+  EventEmitter.call(this);
 
-    this.user   = user;
-    this.socket = socket;
+  this.user   = user;
+  this.socket = socket;
 
-    this.user.clients.add(this);
+  this.user.clients.add(this);
 
-    this.socket.on('error',        this.onError.bind(this));
-    this.socket.on('disconnect',   this.onDisconnect.bind(this));
-    this.socket.on('message',      this.onMessage.bind(this));
-    this.socket.on('join_channel', this.onJoinChannel.bind(this));
-  }
+  this.socket.on('error',        this.onError.bind(this));
+  this.socket.on('disconnect',   this.onDisconnect.bind(this));
+  this.socket.on('message',      this.onMessage.bind(this));
+  this.socket.on('join_channel', this.onJoinChannel.bind(this));
+};
 
-  onError(err) {
-    console.error('onError: ', err.stack);
-  }
+inherits(Client, EventEmitter);
 
-  onDisconnect(data) {
-    debug('Client disconnected: %s', data);
-    this.emit('disconnect', this);
-    this.removeAllListeners();
-  }
+Client.prototype.onError = function(err) {
+  console.error('onError: ', err.stack);
+};
 
-  onJoinChannel(info) {
-    // TODO: check info
-    debug('Received: %s', JSON.stringify(info));
+Client.prototype.onDisconnect = function(data) {
+  debug('Client disconnected: %s', data);
+  this.emit('disconnect', this);
+  this.removeAllListeners();
+};
 
-    let socket = this.socket;
-    co(function *() {
-      try {
-        let channel = yield Db.getChannel(info.app, info.chan);
-        let messages = yield Db.getMessages(channel.cid);
-        channel.history = messages;
-        socket.emit('channel_info', channel);
-      } catch(ex) {
-        console.error(ex.stack);
-      }
-    });
-  }
+Client.prototype.onJoinChannel = function(info) {
+  // TODO: check info
+  debug('[join] %s: %s', this.user.name, JSON.stringify(info));
 
-  onMessage(message) {
-    // TODO: check message
-    debugmsg('Received: %s', JSON.stringify(message));
-    this.emit('message', this, message);
-  }
-}
+  let socket = this.socket;
+  co(function *() {
+    try {
+      let channel = yield Db.getChannel(info.app, info.chan);
+      let messages = yield Db.getMessages(channel.cid);
+      channel.history = messages;
+      socket.emit('channel_info', channel);
+    } catch(ex) {
+      console.error(ex.stack);
+    }
+  });
+};
+
+Client.prototype.onMessage = function(message) {
+  // TODO: check message
+  debugmsg('%s: %s', this.user.name, JSON.stringify(message));
+  this.emit('message', this, message);
+};

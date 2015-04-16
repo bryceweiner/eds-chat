@@ -10,7 +10,6 @@
     "postinstall": "browserify chatclient/app.js -d -p [minifyify --map bundle.map.json --output public/js/bundle.map.json ] > public/js/bundle.js"
   },
   "dependencies": {
-    "babel": "^5.1.8",
     "better-assert": "^1.0.2",
     "browserify": "^9.0.8",
     "classnames": "^1.2.0",

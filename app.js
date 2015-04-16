@@ -16,7 +16,6 @@ if (typeof Promise.prototype.nodeify !== 'function') {
 }
 
 // Load all remaining files through babel
-require('babel/register');
 var ChatServer = require('./chatserver/Server.js');
 var server     = require('./server/index.js');
 var chatServer = new ChatServer(server.httpServer);

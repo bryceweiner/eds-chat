@@ -1,6 +1,7 @@
 'use strict';
 
-export function isInvalidUsername(input) {
+module.exports.isInvalidUsername = isInvalidUsername;
+function isInvalidUsername(input) {
   if (typeof input !== 'string')      return 'NOT_STRING';
   if (input.length === 0)             return 'NOT_PROVIDED';
   if (input.length < 3)               return 'TOO_SHORT';
@@ -10,7 +11,8 @@ export function isInvalidUsername(input) {
   return false;
 }
 
-export function isInvalidTokenHash(input) {
+module.exports.isInvalidTokenHash = isInvalidTokenHash;
+function isInvalidTokenHash(input) {
   if (typeof input !== 'string')
     return 'TOKEN_HASH_IS_NOT_STRING';
   if (!/^[a-z0-9]{64}$/i.test(input))

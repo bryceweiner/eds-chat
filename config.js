@@ -1,6 +1,6 @@
 'use strict';
 
-import fs from 'fs';
+const fs = require('fs');
 
 for (let file of fs.readdirSync('config')) {
   let match = file.match(/^(.*)\.js$/);

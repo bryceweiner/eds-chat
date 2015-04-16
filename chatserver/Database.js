@@ -18,7 +18,8 @@ let channels =
     4: { name: 'support', messages: [] }
   };
 
-export function *getChannel(appName, chanName) {
+module.exports.getChannel = getChannel;
+function *getChannel(appName, chanName) {
 
   let aid, app;
   found: for (;;) {
@@ -46,6 +47,7 @@ export function *getChannel(appName, chanName) {
          };
 }
 
-export function *getMessages(cid) {
+module.exports.getMessages = getMessages;
+function *getMessages(cid) {
   return channels[cid] ? channels[cid].messages : [];
 }
