@@ -90,6 +90,16 @@ ChannelStore.dispatchToken =
       ChannelStore.emitChange();
       break;
 
+    case Action.LEAVE_CHANNEL:
+      var cid = action.channelId;
+      delete _channels[action.channelId];
+      if (_currentId === cid) {
+        _currentId = null;
+        ChannelStore.cleanupCurrentId();
+      }
+      ChannelStore.emitChange();
+      break;
+
     case Action.RECEIVE_CHANNEL_INFO:
       console.log('[STORE] Processing channel info');
       var cinfo   = action.channelInfo;

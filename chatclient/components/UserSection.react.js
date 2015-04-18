@@ -30,7 +30,7 @@ var UserSection = React.createClass({
       // Fully logged in
       user.loggedIn ?
         (<h3 className="user-name">
-           Logged in as {user.name}
+           {"Logged in as " + user.name}
          </h3>) :
       // Not logged in yet, but we have a token hash.
       user.tokenHash ?

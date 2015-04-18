@@ -6,6 +6,28 @@ var cx           = require('classnames');
 
 var ReactPropTypes = React.PropTypes;
 
+var ChannelLeaveButton = React.createClass({
+
+  propTypes: {
+    channel:          ReactPropTypes.object
+  },
+
+  render: function() {
+    var channel     = this.props.channel;
+    return (
+      <div
+        className="channel-leave-button"
+        onClick={this._onClick}
+      >X</div>
+    );
+  },
+
+  _onClick: function() {
+    ClientAction.leaveChannel(this.props.channel.cid);
+  }
+
+});
+
 var ChannelListItem = React.createClass({
 
   propTypes: {
@@ -17,16 +39,16 @@ var ChannelListItem = React.createClass({
     var channel     = this.props.channel;
     var unreadCount = channel.unreadCount;
     return (
-      <li
-        className={cx({
+      <li className={cx({
           'channel-list-item': true,
           'active': channel.cid === this.props.currentChannelId
-        })}
-        onClick={this._onClick}>
-        <h5 className="channel-name">{channel.name}</h5>
-        <div className="channel-unread">
-          ({unreadCount})
-        </div>
+          })}>
+        <h5 className="channel-name" onClick={this._onClick}>
+          {channel.name + ' (' + unreadCount +')'}
+        </h5>
+        <ChannelLeaveButton
+          channel={channel}
+        />
       </li>
     );
   },

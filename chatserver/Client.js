@@ -68,6 +68,7 @@ function Client(user, socket) {
   this.socket.on('disconnect',    this.onDisconnect.bind(this));
 
   this.socket.on('join_channel',  genericHandler(this.onJoinChannel.bind(this)));
+  this.socket.on('leave_channel', genericHandler(this.onLeaveChannel.bind(this)));
   this.socket.on('message',       genericHandler(this.onMessage.bind(this)));
 };
 
@@ -109,6 +110,24 @@ Client.prototype.onJoinChannel = function*(join) {
   // TODO: Subscribe client.
 
   return channel;
+};
+
+Client.prototype.onLeaveChannel = function*(leave) {
+  debug('[leave] %s: %s', this.user.name, JSON.stringify(leave));
+
+  const errMsg =
+    'To leave a channel you need to provide object with'
+    + ' the channel id in the `cid` field of a channel that you'
+    + ' previously joined.';
+
+  clientSafe.assert(typeof leave === 'object' && leave !== null,
+                    'LEAVE_OBJECT', errMsg);
+  clientSafe.assert(leave.hasOwnProperty('cid'),
+                    'LEAVE_CID_MISSING', errMsg);
+  clientSafe.assert(Number.isSafeInteger(leave.cid) && leave.cid >= 0,
+                    'LEAVE_CID_INVALID', errMsg);
+
+  // TODO: Implement this
 };
 
 Client.prototype.onMessage = function*(message) {

@@ -28,6 +28,10 @@ function Connection(tokenHash) {
       self.sendMessage(action.currentChannelId, action.text);
       break;
 
+    case Action.LEAVE_CHANNEL:
+      self.leaveChannel(action.channelId);
+      break;
+
     }
   });
 }
@@ -83,6 +87,11 @@ Connection.prototype.joinChannel = function(appId, chanName) {
       if (err) return console.error(err);
       ServerAction.receiveChannelInfo(info);
     });
+};
+
+Connection.prototype.leaveChannel = function(channelId) {
+  console.log('[leave] Leaving channel', channelId);
+  return this.socket.emit('leave_channel', {channel_id: channelId});
 };
 
 module.exports = Connection;

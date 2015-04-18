@@ -26,6 +26,13 @@ module.exports = {
       appName: appName,
       channelName: channelName
     });
+  },
+
+  leaveChannel: function(cid) {
+    Dispatcher.dispatch({
+      type: Action.LEAVE_CHANNEL,
+      channelId: cid
+    });
   }
 
 };
