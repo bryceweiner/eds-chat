@@ -6,12 +6,13 @@ const co       = require('co');
 const sio      = require('socket.io');
 const request  = require('co-request');
 
-const config       = require('../config');
+const config = require('../config');
+const Db     = require('./Database');
+const Lib    = require('./Lib');
+const Client = require('./Client');
+const User   = require('./User');
 
-const Lib          = require('./Lib');
-const Client       = require('./Client');
-const User         = require('./User');
-
+// HACK: For getting unique message ids.
 let mid = 10;
 
 module.exports = Server;
@@ -113,9 +114,37 @@ Server.prototype.onDisconnect = function(client) {
 };
 
 Server.prototype.onMessage = function(client, message) {
-  message.user = client.user.name;
-  message.mid  = mid++;
-  message.time = Date.now();
 
-  this.socket.to('joined').emit('message', message);
+  let socket = this.socket;
+  co(function*() {
+    // Create a proper object that we can send to other clients.
+
+    try {
+      let msg =
+            { mid: mid++,
+              cid: message.cid,
+              time: Date.now(),
+              user: client.user.name,
+              text: message.text
+            };
+      yield Db.insertMessage(msg);
+
+      socket.to('joined').emit('message', msg);
+    } catch(ex) {
+      // TODO: We perform almost no checks, so this is easy to hit
+      // with a rogue client.
+      console.error('[INTERNAL_ERROR]');
+      if (ex instanceof Error) {
+        console.error(ex.stack);
+      } else {
+        console.error(ex);
+      }
+
+      let genericError =
+        { code: 'INTERNAL_ERROR',
+          message: 'Something went wrong. and we are investigating.'
+        };
+      client.sendError(genericError);
+    }
+  });
 };

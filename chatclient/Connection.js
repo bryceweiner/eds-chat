@@ -75,9 +75,14 @@ Connection.prototype.sendMessage = function(cid, text) {
   return this.socket.emit('message', {cid: cid, text: text});
 };
 
-Connection.prototype.joinChannel = function(appName, chanName) {
-  console.log('[join] Joining channel', appName + '#' + chanName);
-  return this.socket.emit('join_channel', {app: appName, chan: chanName});
+Connection.prototype.joinChannel = function(appId, chanName) {
+  console.log('[join] Joining channel', appId + '#' + chanName);
+  return this.socket.emit(
+    'join_channel', {aid: appId, chan: chanName},
+    function(err, info) {
+      if (err) return console.error(err);
+      ServerAction.receiveChannelInfo(info);
+    });
 };
 
 module.exports = Connection;

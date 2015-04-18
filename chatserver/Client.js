@@ -5,7 +5,10 @@ const debug        = require('debug')('chat:client');
 const debugmsg     = require('debug')('chat:message');
 const inherits     = require('util').inherits;
 const EventEmitter = require('events').EventEmitter;
+const clientSafe   = require('./ClientSafe');
 const Db           = require('./Database');
+
+const ClientSafeError = clientSafe.ClientSafeError;
 
 /*
  * Represents a connection from an authenticated user.
@@ -19,10 +22,53 @@ function Client(user, socket) {
 
   this.user.clients.add(this);
 
-  this.socket.on('error',        this.onError.bind(this));
-  this.socket.on('disconnect',   this.onDisconnect.bind(this));
-  this.socket.on('message',      this.onMessage.bind(this));
-  this.socket.on('join_channel', this.onJoinChannel.bind(this));
+  /* A generic exception handler
+   *
+   * Exceptions are pushed through the callback if one is given and
+   * otherwise an `err` event is sent to the client. This handler
+   * currently only works for generator functions that accept exactly
+   * one argument.
+   */
+  function genericHandler(gen) {
+    return function(data, k) {
+      if (typeof k !== 'function') {
+        k = function(err, data) {
+          if (err) socket.emit('err', err);
+        };
+      }
+
+      co(
+        gen(data)
+      ).then(function(ret) {
+          k(null, ret);
+      }).catch(function(ex) {
+        if (ex instanceof ClientSafeError)
+          return k({code: ex.code, message: ex.message});
+
+        // Something else went wrong. Log the name of the event
+        // generator and the data provided.
+        console.error('[INTERNAL_ERROR]', gen.name, data);
+        if (ex instanceof Error) {
+          console.error(ex.stack);
+        } else {
+          console.error(ex);
+        }
+
+        let genericError =
+          { code: 'INTERNAL_ERROR',
+            message: 'Something went wrong. and we are investigating.'
+          };
+
+        return k(genericError);
+      });
+    };
+  }
+
+  this.socket.on('error',         this.onError.bind(this));
+  this.socket.on('disconnect',    this.onDisconnect.bind(this));
+
+  this.socket.on('join_channel',  genericHandler(this.onJoinChannel.bind(this)));
+  this.socket.on('message',       genericHandler(this.onMessage.bind(this)));
 };
 
 inherits(Client, EventEmitter);
@@ -37,25 +83,52 @@ Client.prototype.onDisconnect = function(data) {
   this.removeAllListeners();
 };
 
-Client.prototype.onJoinChannel = function(info) {
-  // TODO: check info
-  debug('[join] %s: %s', this.user.name, JSON.stringify(info));
+Client.prototype.onJoinChannel = function*(join) {
+  debug('[join] %s: %s', this.user.name, JSON.stringify(join));
 
-  let socket = this.socket;
-  co(function *() {
-    try {
-      let channel = yield Db.getChannel(info.app, info.chan);
-      let messages = yield Db.getMessages(channel.cid);
-      channel.history = messages;
-      socket.emit('channel_info', channel);
-    } catch(ex) {
-      console.error(ex.stack);
-    }
-  });
+  const errMsg =
+    'To join a channel you need to provide an join info object and'
+    + ' a callback. The join info object should carry the'
+    + ' the application id in the `aid` field and the channel name'
+    + ' in the `chan` field.';
+
+  clientSafe.assert(typeof join === 'object' && join !== null,
+                    'JOIN_OBJECT', errMsg);
+  clientSafe.assert(join.hasOwnProperty('aid'),
+                    'JOIN_AID_MISSING', errMsg);
+  clientSafe.assert(join.hasOwnProperty('chan'),
+                    'JOIN_CHAN_MISSING', errMsg);
+  clientSafe.assert(Number.isSafeInteger(join.aid) && join.aid >= 0,
+                    'JOIN_APP_ID_INVALID', errMsg);
+  clientSafe.assert(typeof join.chan === 'string',
+                    'JOIN_CHANNEL_NAME_INVALID', errMsg);
+
+  let channel = yield Db.getChannel(join.aid, join.chan);
+  channel.history = yield Db.getHistory(channel.cid);
+
+  // TODO: Subscribe client.
+
+  return channel;
 };
 
-Client.prototype.onMessage = function(message) {
-  // TODO: check message
+Client.prototype.onMessage = function*(message) {
   debugmsg('%s: %s', this.user.name, JSON.stringify(message));
+
+  const errMsg =
+    'To leave a channel you need to provide object with'
+    + ' the channel id in the `cid` field of a channel that you'
+    + ' previously joined.';
+
+  clientSafe.assert(typeof message === 'object' && message !== null,
+                    'MESSAGE_OBJECT', errMsg);
+  clientSafe.assert(message.hasOwnProperty('cid'),
+                    'MESSAGE_CID_MISSING', errMsg);
+  clientSafe.assert(Number.isSafeInteger(message.cid) && message.cid >= 0,
+                    'MESSAGE_CID_INVALID', errMsg);
+
   this.emit('message', this, message);
+};
+
+Client.prototype.sendError = function(err) {
+  this.socket.emit('err', err);
 };

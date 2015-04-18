@@ -8,6 +8,7 @@ module.exports =
       // Client actions
       CLICK_CHANNEL: null,
       CREATE_MESSAGE: null,
+      JOIN_CHANNEL: null,
 
       // Server actions
       RECEIVE_USERINFO: null,

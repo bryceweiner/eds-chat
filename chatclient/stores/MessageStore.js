@@ -83,6 +83,13 @@ MessageStore.dispatchToken =
       MessageStore.emitChange();
       break;
 
+    case Action.RECEIVE_CHANNEL_INFO:
+      _addMessages(action.channelInfo.history);
+      Dispatcher.waitFor([ChannelStore.dispatchToken]);
+      _markAllInChannelRead(ChannelStore.getCurrentId());
+      MessageStore.emitChange();
+      break;
+
     case Action.RECEIVE_MESSAGES:
       _addMessages(action.rawMessages);
       Dispatcher.waitFor([ChannelStore.dispatchToken]);

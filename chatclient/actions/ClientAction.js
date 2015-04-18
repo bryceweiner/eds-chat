@@ -22,9 +22,9 @@ module.exports = {
 
   joinChannel: function(appName, channelName) {
     Dispatcher.dispatch({
-      type: Action.CREATE_MESSAGE,
-      text: text,
-      currentChannelId: currentChannelId
+      type: Action.JOIN_CHANNEL,
+      appName: appName,
+      channelName: channelName
     });
   }
 

@@ -1,53 +1,84 @@
 'use strict';
 
+const config     = require('../config').chatapp;
+const debug      = require('debug')('chat:db');
+const CBuffer    = require('CBuffer');
+const clientSafe = require('./ClientSafe');
+
 let apps =
   {
-    1: { name: 'dustdice',
-         channels: [1,2]
-       },
-    2: { name: 'bustabit',
-         channels: [3,4]
-       }
+    1: { name: 'dustdice', channels: [1] }
   };
 
 let channels =
   {
-    1: { name: 'general', messages: [] },
-    2: { name: 'support', messages: [] },
-    3: { name: 'general', messages: [] },
-    4: { name: 'support', messages: [] }
+    1: { name: 'general',
+         history: new CBuffer(config.CHAT_HISTORY_SIZE)
+       }
   };
 
-module.exports.getChannel = getChannel;
-function *getChannel(appName, chanName) {
+module.exports.getAppById = getAppById;
+function *getAppById(appId) {
+  debug('getAppById %d', appId);
 
-  let aid, app;
-  found: for (;;) {
-    for (aid in apps) {
-      app = apps[aid];
-      if (app.name === appName)
-        break found;
-    }
-    throw 'APP_DOES_NOT_EXIST';
-  }
+  clientSafe.assert(
+    apps.hasOwnProperty(appId),
+    'APP_ID_INVALID',
+    'The application id you provided is invalid. Please verify.');
 
-  let cid, chan;
-  found: for (;;) {
-    for (cid of app.channels) {
-      chan = channels[cid];
-      if (chan.name === chanName)
-        break found;
-    }
-    throw 'CHANNEL_DOES_NOT_EXIST';
-  }
-
-  return { cid: cid,
-           aname: appName,
-           cname: chanName
-         };
+  return apps[appId];
 }
 
-module.exports.getMessages = getMessages;
-function *getMessages(cid) {
-  return channels[cid] ? channels[cid].messages : [];
+module.exports.getAppByName = getAppByName;
+function *getAppByName(appName) {
+  debug('getAppByName %s', appName);
+
+  for (let appId in apps)
+    if (apps[appId].name === appName)
+      return apps[appId];
+
+  clientSafe.fail('APP_NAME_INVALID', 'The application could not be found');
+}
+
+module.exports.getChannel = getChannel;
+function *getChannel(appId, channelName) {
+  debug('getChannel %d#%s', appId, channelName);
+
+  let app = yield getAppById(appId);
+
+  for (let channelId of app.channels) {
+    let channel = channels[channelId];
+    if (channel.name === channelName)
+      return { cid: channelId };
+  }
+
+  clientSafe.fail(
+    'CHANNEL_NAME_INVALID',
+    'There is no channel with that name associated with the application.');
+}
+
+module.exports.getHistory = getHistory;
+function *getHistory(channelId) {
+  debug('getHistory %d', channelId);
+
+  clientSafe.assert(
+    channels.hasOwnProperty(channelId),
+    'CHANNEL_ID_INVALID',
+    'The application id you provided is invalid. Please verify.');
+
+  return channels[channelId].history.toArray();
+}
+
+module.exports.insertMessage = insertMessage;
+function *insertMessage(message) {
+  debug('insertMessage %s', JSON.stringify(message));
+
+  let cid = message.cid;
+  clientSafe.assert(
+    channels.hasOwnProperty(cid),
+    'CHANNEL_ID_INVALID',
+    'The application id you provided is invalid. Please verify.');
+
+  let channel = channels[cid];
+  channel.history.push(message);
 }

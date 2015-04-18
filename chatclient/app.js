@@ -45,10 +45,7 @@ window.React = React;
   UserStore.init(user);
   var conn = new Connection(tokenHash);
   conn.on('connect', function() {
-    conn.joinChannel('dustdice', 'general');
-    conn.joinChannel('dustdice', 'support');
-    conn.joinChannel('bustabit', 'general');
-    conn.joinChannel('bustabit', 'support');
+    conn.joinChannel(1, 'general');
   });
 })();
 

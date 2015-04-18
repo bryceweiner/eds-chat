@@ -13,10 +13,19 @@ var _channels = {};
 
 var ChannelStore = assign({}, EventEmitter.prototype, {
 
-  init: function(rawMessages) {
+  cleanupCurrentId: function() {
+    if (!_currentId) {
+      var allSorted = this.getAllSorted();
+      var channel = allSorted[0];
+      _currentId = channel.cid;
+      channel.unreadCount = 0;
+    }
+  },
+
+  processMessages: function(rawMessages) {
     rawMessages.forEach(function(rawMessage) {
-      var cid = rawMessage.cid;
-      var channel   = _channels[cid];
+      var cid     = rawMessage.cid;
+      var channel = _channels[cid];
 
       if (!channel)
         return console.log('[msg] Dropping message', rawMessage);
@@ -25,12 +34,7 @@ var ChannelStore = assign({}, EventEmitter.prototype, {
         channel.unreadCount++;
     }, this);
 
-    if (!_currentId) {
-      var allSorted = this.getAllSorted();
-      var channel = allSorted[0];
-      _currentId = channel.cid;
-      channel.unreadCount = 0;
-    }
+    this.cleanupCurrentId();
   },
 
   emitChange: function() {
@@ -105,17 +109,17 @@ ChannelStore.dispatchToken =
         channel = _channels[cid];
       channel.name = cinfo.aname + '#' + cinfo.cname;
 
-      ChannelStore.init(cinfo.history);
+      ChannelStore.processMessages(cinfo.history);
       ChannelStore.emitChange();
       break;
 
     case Action.RECEIVE_MESSAGES:
-      ChannelStore.init(action.rawMessages);
+      ChannelStore.processMessages(action.rawMessages);
       ChannelStore.emitChange();
       break;
 
     case Action.RECEIVE_MESSAGE:
-      ChannelStore.init([action.rawMessage]);
+      ChannelStore.processMessages([action.rawMessage]);
       ChannelStore.emitChange();
       break;
     }
