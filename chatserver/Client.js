@@ -106,6 +106,7 @@ Client.prototype.onJoinChannel = function*(join) {
 
   let channel = yield Db.getChannel(join.aid, join.chan);
   channel.history = yield Db.getHistory(channel.cid);
+  channel.num_users = 0; // TODO: Implement this
 
   // TODO: Subscribe client.
 
