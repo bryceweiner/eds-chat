@@ -61,7 +61,7 @@ Joining channels:
 To join a channel you need to provide the global MoneyPot application id
 and the name of a
 
-    socket.emit('join_channel', {"aid": appId, "cname": channelName},
+    socket.emit('join_channel', {"aid": appId, "chan": channelName},
         function(err, info) {
             if (err) {
                 console.log('Error code', err.code);
