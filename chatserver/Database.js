@@ -7,14 +7,20 @@ const clientSafe = require('./ClientSafe');
 
 let apps =
   {
-    1: { name: 'dustdice', channels: [1] }
+    1: { name: 'dustdice', channels: [1] },
+    18: { name: 'untitled-dice', channels: [2] }
   };
 
 let channels =
   {
-    1: { name: 'general',
-         history: new CBuffer(config.CHAT_HISTORY_SIZE)
-       }
+    1: { 
+      name: 'general',
+      history: new CBuffer(config.CHAT_HISTORY_SIZE)
+    },
+    2: {
+      name: 'general',
+      history: new CBuffer(config.CHAT_HISTORY_SIZE)
+    }
   };
 
 module.exports.getAppById = getAppById;
