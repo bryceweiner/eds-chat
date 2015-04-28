@@ -97,7 +97,12 @@ Server.prototype.onAuth = function *(socket, tokenHash) {
 
   // TODO: Support leavinig/joining channels. Get rid
   // of socket.io rooms?
-  socket.join('joined');
+  // IDEA: Maybe we should just remove the `joined` channel and,
+  // for now, just support an "*" channel (for chat.moneypot.com)
+  // and "app:<app_id>" channels for each app where "app:<app_id>" is
+  // the canonical lobby channel.
+
+  // socket.join('joined');
 
   let client = new Client(user, socket, this);
   client.on('disconnect', this.onDisconnect.bind(this));
@@ -129,7 +134,9 @@ Server.prototype.onMessage = function(client, message) {
             };
       yield Db.insertMessage(msg);
 
-      socket.to('joined').emit('message', msg);
+      // socket.to('joined').emit('message', msg);
+      socket.to('app:' + client.app_id).emit('message', msg);
+
     } catch(ex) {
       // TODO: We perform almost no checks, so this is easy to hit
       // with a rogue client.

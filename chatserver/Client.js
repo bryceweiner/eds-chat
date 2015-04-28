@@ -110,6 +110,13 @@ Client.prototype.onJoinChannel = function*(join) {
   channel.history = yield Db.getHistory(channel.cid);
   channel.num_users = Object.keys(this.server.users).length;
 
+  // FIXME: Not sure where to put this, but hacking it in right here.
+  // Client#app_id :: Maybe Int
+  this.app_id = join.aid;
+  var channelName = 'app:' + join.aid;
+  debug('[join] joined channel: %s', channelName);
+  this.socket.join(channelName);
+
   // TODO: Subscribe client.
 
   return channel;
