@@ -14,11 +14,13 @@ const ClientSafeError = clientSafe.ClientSafeError;
  * Represents a connection from an authenticated user.
  */
 module.exports = Client;
-function Client(user, socket) {
+function Client(user, socket, server) {
   EventEmitter.call(this);
 
   this.user   = user;
   this.socket = socket;
+  // Allows client to access server state like conn count
+  this.server = server;
 
   this.user.clients.add(this);
 
@@ -106,7 +108,7 @@ Client.prototype.onJoinChannel = function*(join) {
 
   let channel = yield Db.getChannel(join.aid, join.chan);
   channel.history = yield Db.getHistory(channel.cid);
-  channel.num_users = 0; // TODO: Implement this
+  channel.num_users = Object.keys(this.server.users).length;
 
   // TODO: Subscribe client.
 

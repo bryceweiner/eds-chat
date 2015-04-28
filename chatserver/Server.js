@@ -99,7 +99,7 @@ Server.prototype.onAuth = function *(socket, tokenHash) {
   // of socket.io rooms?
   socket.join('joined');
 
-  let client = new Client(user, socket);
+  let client = new Client(user, socket, this);
   client.on('disconnect', this.onDisconnect.bind(this));
   client.on('message', this.onMessage.bind(this));
   this.clients.add(client);
